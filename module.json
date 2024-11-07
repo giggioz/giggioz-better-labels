@@ -1,0 +1,32 @@
+{
+  "title": "Giggioz's Better Labels",
+  "description": "Clear labels for Public/Private/Self/Blind rolls",
+  "id": "giggioz-better-labels",
+  "version": "1.0.0",
+  "authors": [
+    {
+      "name": "Giggioz",
+      "email": "giggioz@gmail.com",
+      "url": "https://github.com/giggioz/giggioz-better-labels"
+    }
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
+  "scripts": ["index.js"],
+  "styles": ["styles/module.css"],
+  "packs": [],
+  "url": "https://github.com/giggioz/giggioz-better-labels",
+  "manifest": "https://github.com/giggioz/giggioz-better-labels/releases/latest/download/module.json",
+  "download": "https://github.com/giggioz/giggioz-better-labels/archive/refs/tags/1.0.0.zip",
+  "relationships": {
+    "requires": []
+  },
+  "compatibility": {
+    "verified": "12"
+  }
+}

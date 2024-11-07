@@ -1,0 +1,16 @@
+{
+  "giggioz-better-labels": {
+    "settings": {
+      "title": "Settings",
+      "description": "Configure the settings for Giggioz's Better Labels module."
+    },
+    "app": {
+      "title": "Giggioz's Better Labels",
+      "description": "Clear labels for Public/Private/Self/Blind rolls."
+    },
+    "flags": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  }
+}

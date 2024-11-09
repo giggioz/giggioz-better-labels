@@ -25,6 +25,10 @@ async function updateVersion() {
   const newVersion = `${major}.${minor}.${patch + 1}`;
   moduleJson.version = newVersion;
 
+  // Update manifest and download URLs to the specific version
+  moduleJson.manifest = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.json`;
+  moduleJson.download = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.zip`;
+
   fs.writeFileSync(moduleJsonPath, JSON.stringify(moduleJson, null, 2));
   console.log(`Updated module.json version: ${oldVersion} -> ${newVersion}`);
 
@@ -78,40 +82,29 @@ async function gitOperations(newVersion) {
   console.log('Changes committed and pushed with tag:', `v${newVersion}`);
 }
 
-async function getLatestRelease() {
-  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
+async function createGitHubRelease(newVersion) {
+  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases`;
 
-  const response = await axios.get(url, {
+  const response = await axios.post(url, {
+    tag_name: `v${newVersion}`,
+    name: `v${newVersion}`,
+    body: `Release version ${newVersion}`,
+  }, {
     headers: {
       Authorization: `token ${GITHUB_TOKEN}`,
-    },
+      'Content-Type': 'application/json',
+    }
   });
 
-  return response.data;
-}
+  const releaseId = response.data.id;
+  console.log(`Release created: ${response.data.html_url}`);
 
-async function getReleaseAssets(releaseId) {
-  const assetsUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/${releaseId}/assets`;
+  const uploadUrl = response.data.upload_url.replace('{?name,label}', '');
 
-  const response = await axios.get(assetsUrl, {
-    headers: {
-      Authorization: `token ${GITHUB_TOKEN}`,
-    },
-  });
+  await uploadReleaseAsset(uploadUrl, 'module.json', moduleJsonPath);
+  await uploadReleaseAsset(uploadUrl, 'module.zip', outputZipPath);
 
-  return response.data;
-}
-
-async function deleteReleaseAsset(assetId) {
-  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/assets/${assetId}`;
-
-  await axios.delete(url, {
-    headers: {
-      Authorization: `token ${GITHUB_TOKEN}`,
-    },
-  });
-
-  console.log(`Deleted existing asset with ID: ${assetId}`);
+  console.log('Assets uploaded to release.');
 }
 
 async function uploadReleaseAsset(uploadUrl, assetName, assetPath) {
@@ -120,30 +113,12 @@ async function uploadReleaseAsset(uploadUrl, assetName, assetPath) {
   await axios.post(`${uploadUrl}?name=${assetName}`, fileData, {
     headers: {
       Authorization: `token ${GITHUB_TOKEN}`,
-      'Content-Type': 'application/zip',
+      'Content-Type': assetName.endsWith('.json') ? 'application/json' : 'application/zip',
       'Content-Length': fileData.length,
     },
   });
 
   console.log(`Uploaded ${assetName} to release.`);
-}
-
-async function uploadAssetsToLatestRelease() {
-  const latestRelease = await getLatestRelease();
-  const uploadUrl = latestRelease.upload_url.replace('{?name,label}', '');
-
-  const existingAssets = await getReleaseAssets(latestRelease.id);
-
-  for (const asset of existingAssets) {
-    if (['module.json', 'module.zip'].includes(asset.name)) {
-      await deleteReleaseAsset(asset.id);
-    }
-  }
-
-  await uploadReleaseAsset(uploadUrl, 'module.json', moduleJsonPath);
-  await uploadReleaseAsset(uploadUrl, 'module.zip', outputZipPath);
-
-  console.log('Assets uploaded to the latest release.');
 }
 
 async function cleanup() {
@@ -162,7 +137,7 @@ async function runWorkflow() {
     const newVersion = await updateVersion();
     await zipModule();
     await gitOperations(newVersion);
-    await uploadAssetsToLatestRelease();
+    await createGitHubRelease(newVersion);
   } catch (error) {
     console.error('Workflow failed:', error);
   } finally {

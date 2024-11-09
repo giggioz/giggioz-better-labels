@@ -101,4 +101,4 @@ resetButton.on('click', () => {
   html.find(`.tab[data-tab="giggioz-better-labels"]`).append(resetButton);
 }
 
-module.exports = { setupSettingsInterface };
+// module.exports = { setupSettingsInterface };

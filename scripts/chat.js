@@ -31,4 +31,4 @@ GiggiozBetterLabels.handleChatMessage = async function (chatMessage, options, us
   await chatMessage.update({ content: newContent });
 }
 
-module.exports = { handleChatMessage };
+// module.exports = { handleChatMessage };

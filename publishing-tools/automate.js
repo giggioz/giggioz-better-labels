@@ -1,10 +1,12 @@
-require('dotenv').config(); // Load .env variables
+// require('dotenv').config(); // Load .env variable
 
 const fs = require('fs');
 const path = require('path');
 const simpleGit = require('simple-git');
 const archiver = require('archiver');
 const axios = require('axios');
+
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
 // GitHub Configuration
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;

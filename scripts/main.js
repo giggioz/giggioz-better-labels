@@ -13,8 +13,6 @@ Hooks.once('ready', () => {
         tab[0].click();
       }
     });
-  } else {
-    ui.notifications.info(`Giggioz Better Labels v${version} running in ${mode} mode.`);
   }
 });
 

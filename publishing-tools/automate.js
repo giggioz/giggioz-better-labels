@@ -7,7 +7,7 @@ const archiver = require('archiver');
 const axios = require('axios');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
-console.log('sssssss', process.env.GITHUB_TOKEN)
+console.log('sssssss', path.resolve(__dirname, '.env'))
 // GitHub Configuration
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const REPO_OWNER = 'giggioz'; // Replace with your GitHub username

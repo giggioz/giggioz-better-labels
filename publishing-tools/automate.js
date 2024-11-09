@@ -11,7 +11,8 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const REPO_OWNER = 'giggioz'; // Replace with your GitHub username
 const REPO_NAME = 'giggioz-better-labels';
 
-const moduleDir = path.resolve(__dirname);
+// Update the paths to point to the parent directory where module.json is located
+const moduleDir = path.resolve(__dirname, '../'); // Parent directory of publishing-tools
 const moduleJsonPath = path.join(moduleDir, 'module.json');
 const outputZipPath = path.join(moduleDir, `module.zip`);
 
@@ -44,7 +45,7 @@ function zipModule() {
     archive.pipe(output);
     archive.glob('**/*', {
       cwd: moduleDir,
-      ignore: ['.git/**', 'node_modules/**', '*.zip', '.env']
+      ignore: ['.git/**', 'node_modules/**', '*.zip', '.env', '.DS_Store', 'publishing-tools/**'] // Exclude publishing-tools directory as well
     });
     archive.finalize();
   });

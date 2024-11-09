@@ -51,7 +51,7 @@ function zipModule() {
     archive.pipe(output);
     archive.glob('**/*', {
       cwd: moduleDir,
-      ignore: ['.git/**', 'node_modules/**', '*.zip', '.env', '.DS_Store', 'publishing-tools/**'] // Exclude publishing-tools directory
+      ignore: ['.git/**', 'node_modules/**', '*.zip', '.env', '.DS_Store', 'publishing-tools/**', 'package.json', 'package-lock.json'] // Exclude publishing-tools directory
     });
     archive.finalize();
   });

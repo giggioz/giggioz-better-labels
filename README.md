@@ -1,6 +1,6 @@
 # Giggioz Better Labels
 
-**Giggioz Better Labels** is a Foundry VTT module that enhances chat message visibility by dynamically labeling messages rolls based on their privacy settings.
+**Giggioz Better Labels** is a Foundry VTT module that enhances chat message visibility by dynamically labeling message rolls based on their privacy settings. The module also includes a customizable **Settings UI** for adjusting label colors.
 
 ## Features
 
@@ -9,25 +9,45 @@
    - **Private**: Blue label for message rolls whispered to specific users.
    - **Self**: Purple label for message rolls whispered to oneself.
    - **Blind**: Red label for message rolls marked as blind.
-   - **GM-Specific Behavior**: Private andn Self Messages Rolls for the GM are basically the same thing, a label is shown as "Private/Self is Self for GMs."
+   - **GM-Specific Behavior**: Private and Self Messages Rolls for the GM are the same. The label shows as "Private/Self is Self for GMs."
+
+2. **Customizable Settings**:
+   - Adjust label background and text colors directly in the **Settings UI**.
+   - Preview changes live before applying them.
+   - Reset colors to default with a single click.
 
 ## Installation
 
-1. Install manually the module in Foundry using "https://github.com/giggioz/giggioz-better-labels/releases/download/_LATEST_VERSION_/module.json"
-2. For example https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.27/module.json
-3. Enable the module in your game by going to **Game Settings** > **Manage Modules** and checking **Giggioz Better Labels**.
+1. Install the module in Foundry using:
+   - **Latest Release**: `https://github.com/giggioz/giggioz-better-labels/releases/download/_LATEST_VERSION_/module.json`
+   - Example: `https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.27/module.json`
+2. Enable the module in your game by navigating to **Game Settings** > **Manage Modules** and checking **Giggioz Better Labels**.
 
 ## Usage
 
 ### Chat Labels
 
-Labels are automatically added to chat messages based on their visibility:
+Labels are automatically added to chat messages based on their visibility settings:
 
-<img src="screenshot-1.png" alt="Description" style="width:300px;">
+<img src="screenshot-1.png" alt="Chat Labels Example" style="width:300px;">
+
+### Settings UI
+
+You can customize the label colors via the module’s **Settings UI**:
+
+<img src="screenshot-2.png" alt="Settings UI Example" style="width:450px;">
+
+1. Navigate to **Game Settings** > **Configure Settings** > **Module Settings** > **Giggioz Better Labels**.
+2. Adjust the colors for each label type using the color pickers.
+3. Preview the changes directly below the color pickers.
+4. Click **Reset to Default** to revert all settings.
 
 ## Development
 
-To develop in local enviroment run ./create-symlink.sh to create a copy of this repo into  foundry modules. Chek the file to setup your path.
+To set up a local development environment:
+
+1. Run `./create-symlink.sh` to create a symbolic link from this repository to Foundry's modules folder.
+2. Edit the script to set up the correct path for your system.
 
 ## Contributing
 

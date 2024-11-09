@@ -1,3 +1,5 @@
+
+
 const fs = require('fs');
 const path = require('path');
 const simpleGit = require('simple-git');
@@ -11,7 +13,7 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const REPO_OWNER = 'giggioz'; // Replace with your GitHub username
 const REPO_NAME = 'giggioz-better-labels';
 
-// Update the paths to point to the parent directory where module.json is located
+// Paths
 const moduleDir = path.resolve(__dirname, '../'); // Parent directory of publishing-tools
 const moduleJsonPath = path.join(moduleDir, 'module.json');
 const outputZipPath = path.join(moduleDir, `module.zip`);
@@ -21,7 +23,6 @@ async function updateVersion() {
   const oldVersion = moduleJson.version;
   const [major, minor, patch] = oldVersion.split('.').map(Number);
 
-  // Increment the patch version
   const newVersion = `${major}.${minor}.${patch + 1}`;
   moduleJson.version = newVersion;
 
@@ -29,10 +30,8 @@ async function updateVersion() {
   moduleJson.manifest = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.json`;
   moduleJson.download = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.zip`;
 
-  // Write the updated module.json
   fs.writeFileSync(moduleJsonPath, JSON.stringify(moduleJson, null, 2));
   console.log(`Updated module.json version: ${oldVersion} -> ${newVersion}`);
-  console.log(`Updated manifest and download URLs to version ${newVersion}`);
 
   return newVersion;
 }
@@ -52,7 +51,7 @@ function zipModule() {
     archive.pipe(output);
     archive.glob('**/*', {
       cwd: moduleDir,
-      ignore: ['.git/**', 'node_modules/**', '*.zip', '.env', '.DS_Store', 'publishing-tools/**'] // Exclude publishing-tools directory as well
+      ignore: ['.git/**', 'node_modules/**', '*.zip', '.env', '.DS_Store', 'publishing-tools/**'] // Exclude publishing-tools directory
     });
     archive.finalize();
   });
@@ -110,6 +109,17 @@ async function uploadReleaseAsset(uploadUrl, assetName, assetPath) {
   console.log(`Uploaded ${assetName} to release.`);
 }
 
+async function cleanup() {
+  try {
+    if (fs.existsSync(outputZipPath)) {
+      fs.unlinkSync(outputZipPath);
+      console.log(`Deleted zip file: ${outputZipPath}`);
+    }
+  } catch (error) {
+    console.error(`Failed to delete zip file: ${error.message}`);
+  }
+}
+
 async function runWorkflow() {
   try {
     const newVersion = await updateVersion();
@@ -118,6 +128,8 @@ async function runWorkflow() {
     await createGitHubRelease(newVersion);
   } catch (error) {
     console.error('Workflow failed:', error);
+  } finally {
+    await cleanup();
   }
 }
 

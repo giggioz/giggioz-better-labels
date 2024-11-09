@@ -21,10 +21,12 @@ const outputZipPath = path.join(moduleDir, `module.zip`);
 async function updateVersion() {
   const moduleJson = JSON.parse(fs.readFileSync(moduleJsonPath, 'utf-8'));
   const oldVersion = moduleJson.version;
+  const oldMode = moduleJson.mode || 'development'; // Default to development if not set
   const [major, minor, patch] = oldVersion.split('.').map(Number);
 
   const newVersion = `${major}.${minor}.${patch + 1}`;
   moduleJson.version = newVersion;
+  moduleJson.mode = 'production'; // Temporarily set mode to production
 
   // Update manifest and download URLs
   moduleJson.manifest = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.json`;
@@ -32,9 +34,18 @@ async function updateVersion() {
 
   fs.writeFileSync(moduleJsonPath, JSON.stringify(moduleJson, null, 2));
   console.log(`Updated module.json version: ${oldVersion} -> ${newVersion}`);
+  console.log(`Temporarily set mode to production`);
+
+  // Restore mode to development after a delay
+  process.on('exit', () => {
+    moduleJson.mode = oldMode;
+    fs.writeFileSync(moduleJsonPath, JSON.stringify(moduleJson, null, 2));
+    console.log(`Restored mode to ${oldMode}`);
+  });
 
   return newVersion;
 }
+
 
 function zipModule() {
   return new Promise((resolve, reject) => {

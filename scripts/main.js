@@ -16,9 +16,6 @@ Hooks.once('ready', () => {
   }
 });
 
-Hooks.once('init', () => {
-  GiggiozBetterLabels.registerSettings();
-});
-
+Hooks.once('init', GiggiozBetterLabels.registerSettings);
 Hooks.on('renderSettingsConfig', GiggiozBetterLabels.setupSettingsInterface);
 Hooks.on('createChatMessage', GiggiozBetterLabels.handleChatMessage);

@@ -66,37 +66,36 @@ GiggiozBetterLabels.setupSettingsInterface = function (app, html, data) {
   textInput.hide();
 
   const resetButton = $(`<button type="button" style="margin-top: 10px;">Reset to Default</button>`);
-resetButton.on('click', () => {
-  const defaults = {
-    publicLabelColor: '#28a745',
-    privateLabelColor: '#007bff',
-    selfLabelColor: '#6f42c1',
-    blindLabelColor: '#dc3545',
-    labelTextColor: '#ffffff',
-  };
+  resetButton.on('click', () => {
+    const defaults = {
+      publicLabelColor: '#28a745',
+      privateLabelColor: '#007bff',
+      selfLabelColor: '#6f42c1',
+      blindLabelColor: '#dc3545',
+      labelTextColor: '#ffffff',
+    };
 
-  for (const [key, value] of Object.entries(defaults)) {
-    game.settings.set('giggioz-better-labels', key, value);
-  }
+    for (const [key, value] of Object.entries(defaults)) {
+      game.settings.set('giggioz-better-labels', key, value);
+    }
 
-  // Update both the previews and color pickers
-  colorFields.forEach((field) => {
-    const input = html.find(`input[name="giggioz-better-labels.${field.key}"]`);
-    const colorPicker = input.next('input[type="color"]');
-    const preview = colorPicker.next('.label-preview');
+    // Update both the previews and color pickers
+    colorFields.forEach((field) => {
+      const input = html.find(`input[name="giggioz-better-labels.${field.key}"]`);
+      const colorPicker = input.next('input[type="color"]');
+      const preview = colorPicker.next('.label-preview');
 
-    input.val(defaults[field.key]).trigger('change');
-    colorPicker.val(defaults[field.key]);
-    updatePreview(preview, defaults[field.key], defaults[textColorField]);
+      input.val(defaults[field.key]).trigger('change');
+      colorPicker.val(defaults[field.key]);
+      updatePreview(preview, defaults[field.key], defaults[textColorField]);
+    });
+
+    // Update the text color picker separately
+    textInput.val(defaults[textColorField]).trigger('change');
+    textColorPicker.val(defaults[textColorField]);
+
+    ui.notifications.info('All label colors have been reset to default values.');
   });
 
-  // Update the text color picker separately
-  textInput.val(defaults[textColorField]).trigger('change');
-  textColorPicker.val(defaults[textColorField]);
-
-  ui.notifications.info('All label colors have been reset to default values.');
-});
-
-
   html.find(`.tab[data-tab="giggioz-better-labels"]`).append(resetButton);
-}
+};

@@ -1,5 +1,3 @@
-
-
 const fs = require('fs');
 const path = require('path');
 const simpleGit = require('simple-git');
@@ -17,7 +15,6 @@ const REPO_NAME = 'giggioz-better-labels';
 const moduleDir = path.resolve(__dirname, '../'); // Parent directory of publishing-tools
 const moduleJsonPath = path.join(moduleDir, 'module.json');
 const outputZipPath = path.join(moduleDir, `module.zip`);
-
 const globalJsPath = path.join(moduleDir, 'scripts', 'global.js');
 
 async function updateVersion() {
@@ -28,9 +25,9 @@ async function updateVersion() {
   const newVersion = `${major}.${minor}.${patch + 1}`;
   moduleJson.version = newVersion;
 
-  // Update manifest and download URLs
-  moduleJson.manifest = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.json`;
-  moduleJson.download = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.zip`;
+  // Update manifest and download URLs to point to the latest release
+  moduleJson.manifest = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/latest/module.json`;
+  moduleJson.download = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/latest/module.zip`;
 
   fs.writeFileSync(moduleJsonPath, JSON.stringify(moduleJson, null, 2));
   console.log(`Updated module.json version: ${oldVersion} -> ${newVersion}`);
@@ -52,9 +49,6 @@ async function updateVersion() {
   return newVersion;
 }
 
-
-
-
 function zipModule() {
   return new Promise((resolve, reject) => {
     const output = fs.createWriteStream(outputZipPath);
@@ -70,7 +64,7 @@ function zipModule() {
     archive.pipe(output);
     archive.glob('**/*', {
       cwd: moduleDir,
-      ignore: ['.git/**', 'node_modules/**', '*.zip', '.env', '.DS_Store', 'publishing-tools/**', 'package.json', 'package-lock.json'] // Exclude publishing-tools directory
+      ignore: ['.git/**', 'node_modules/**', '*.zip', '.env', '.DS_Store', 'publishing-tools/**', 'package.json', 'package-lock.json']
     });
     archive.finalize();
   });
@@ -78,14 +72,14 @@ function zipModule() {
 
 async function gitOperations(newVersion) {
   const git = simpleGit(moduleDir);
-  
+
   await git.add('./*');
   await git.commit(`Release version ${newVersion}`);
   await git.tag([`v${newVersion}`]);
-  
+
   await git.push('origin', 'main');
   await git.pushTags('origin');
-  
+
   console.log('Changes committed and pushed with tag:', `v${newVersion}`);
 }
 
@@ -99,7 +93,7 @@ async function createGitHubRelease(newVersion) {
   }, {
     headers: {
       Authorization: `token ${GITHUB_TOKEN}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     }
   });
 
@@ -120,7 +114,7 @@ async function uploadReleaseAsset(uploadUrl, assetName, assetPath) {
   await axios.post(`${uploadUrl}?name=${assetName}`, fileData, {
     headers: {
       Authorization: `token ${GITHUB_TOKEN}`,
-      'Content-Type': 'application/zip',
+      'Content-Type': assetName.endsWith('.json') ? 'application/json' : 'application/zip',
       'Content-Length': fileData.length,
     },
   });

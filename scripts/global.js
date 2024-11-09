@@ -1,3 +1,3 @@
 window.GiggiozBetterLabels = {
-    mode: 'production'
+    mode: 'development'
 };

@@ -25,10 +25,6 @@ async function updateVersion() {
   const newVersion = `${major}.${minor}.${patch + 1}`;
   moduleJson.version = newVersion;
 
-  // Update manifest and download URLs to always point to the latest release
-  moduleJson.manifest = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/latest/module.json`;
-  moduleJson.download = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/latest/module.zip`;
-
   fs.writeFileSync(moduleJsonPath, JSON.stringify(moduleJson, null, 2));
   console.log(`Updated module.json version: ${oldVersion} -> ${newVersion}`);
 
@@ -38,7 +34,6 @@ async function updateVersion() {
   fs.writeFileSync(globalJsPath, globalJs);
   console.log('Temporarily set mode to production in global.js');
 
-  // Restore mode to development after process completion
   process.on('exit', () => {
     let globalJsRestore = fs.readFileSync(globalJsPath, 'utf-8');
     globalJsRestore = globalJsRestore.replace(`mode: 'production'`, `mode: 'development'`);
@@ -72,41 +67,51 @@ function zipModule() {
 
 async function gitOperations(newVersion) {
   const git = simpleGit(moduleDir);
-
+  
   await git.add('./*');
   await git.commit(`Release version ${newVersion}`);
   await git.tag([`v${newVersion}`]);
-
+  
   await git.push('origin', 'main');
   await git.pushTags('origin');
-
+  
   console.log('Changes committed and pushed with tag:', `v${newVersion}`);
 }
 
 async function getLatestRelease() {
   const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
 
-  try {
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Failed to fetch the latest release:', error.message);
-    throw error;
-  }
+  const response = await axios.get(url, {
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+    },
+  });
+
+  return response.data;
 }
 
-async function uploadAssetsToLatestRelease() {
-  const latestRelease = await getLatestRelease();
-  const uploadUrl = latestRelease.upload_url.replace('{?name,label}', '');
+async function getReleaseAssets(releaseId) {
+  const assetsUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/${releaseId}/assets`;
 
-  await uploadReleaseAsset(uploadUrl, 'module.json', moduleJsonPath);
-  await uploadReleaseAsset(uploadUrl, 'module.zip', outputZipPath);
+  const response = await axios.get(assetsUrl, {
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+    },
+  });
 
-  console.log('Assets uploaded to the latest release.');
+  return response.data;
+}
+
+async function deleteReleaseAsset(assetId) {
+  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/assets/${assetId}`;
+
+  await axios.delete(url, {
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+    },
+  });
+
+  console.log(`Deleted existing asset with ID: ${assetId}`);
 }
 
 async function uploadReleaseAsset(uploadUrl, assetName, assetPath) {
@@ -115,12 +120,30 @@ async function uploadReleaseAsset(uploadUrl, assetName, assetPath) {
   await axios.post(`${uploadUrl}?name=${assetName}`, fileData, {
     headers: {
       Authorization: `token ${GITHUB_TOKEN}`,
-      'Content-Type': assetName.endsWith('.json') ? 'application/json' : 'application/zip',
+      'Content-Type': 'application/zip',
       'Content-Length': fileData.length,
     },
   });
 
-  console.log(`Uploaded ${assetName} to the latest release.`);
+  console.log(`Uploaded ${assetName} to release.`);
+}
+
+async function uploadAssetsToLatestRelease() {
+  const latestRelease = await getLatestRelease();
+  const uploadUrl = latestRelease.upload_url.replace('{?name,label}', '');
+
+  const existingAssets = await getReleaseAssets(latestRelease.id);
+
+  for (const asset of existingAssets) {
+    if (['module.json', 'module.zip'].includes(asset.name)) {
+      await deleteReleaseAsset(asset.id);
+    }
+  }
+
+  await uploadReleaseAsset(uploadUrl, 'module.json', moduleJsonPath);
+  await uploadReleaseAsset(uploadUrl, 'module.zip', outputZipPath);
+
+  console.log('Assets uploaded to the latest release.');
 }
 
 async function cleanup() {

@@ -2,7 +2,7 @@
   "title": "Giggioz Better Labels",
   "description": "Modulo FoundryVTT che migliora le etichette dei messaggi di chat.",
   "id": "giggioz-better-labels",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "authors": [
     {
       "name": "Giggioz",
@@ -24,8 +24,8 @@
   "packs": [],
   "languages": [],
   "url": "https://github.com/giggioz/giggioz-better-labels",
-  "manifest": "https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.18/module.json",
-  "download": "https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.18/module.zip",
+  "manifest": "https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.19/module.json",
+  "download": "https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.19/module.zip",
   "compatibility": {
     "verified": "12",
     "minimum": "12"

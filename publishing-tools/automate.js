@@ -1,5 +1,3 @@
-// require('dotenv').config(); // Load .env variable
-
 const fs = require('fs');
 const path = require('path');
 const simpleGit = require('simple-git');
@@ -7,7 +5,7 @@ const archiver = require('archiver');
 const axios = require('axios');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-console.log('sssssss', path.resolve(__dirname, '.env'))
+
 // GitHub Configuration
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const REPO_OWNER = 'giggioz'; // Replace with your GitHub username
@@ -23,11 +21,18 @@ async function updateVersion() {
   const oldVersion = moduleJson.version;
   const [major, minor, patch] = oldVersion.split('.').map(Number);
 
+  // Increment the patch version
   const newVersion = `${major}.${minor}.${patch + 1}`;
   moduleJson.version = newVersion;
 
+  // Update manifest and download URLs
+  moduleJson.manifest = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.json`;
+  moduleJson.download = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.zip`;
+
+  // Write the updated module.json
   fs.writeFileSync(moduleJsonPath, JSON.stringify(moduleJson, null, 2));
   console.log(`Updated module.json version: ${oldVersion} -> ${newVersion}`);
+  console.log(`Updated manifest and download URLs to version ${newVersion}`);
 
   return newVersion;
 }

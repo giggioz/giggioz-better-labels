@@ -25,7 +25,7 @@ async function updateVersion() {
   const newVersion = `${major}.${minor}.${patch + 1}`;
   moduleJson.version = newVersion;
 
-  // Update manifest and download URLs to point to the latest release
+  // Update manifest and download URLs to always point to the latest release
   moduleJson.manifest = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/latest/module.json`;
   moduleJson.download = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/latest/module.zip`;
 
@@ -83,29 +83,30 @@ async function gitOperations(newVersion) {
   console.log('Changes committed and pushed with tag:', `v${newVersion}`);
 }
 
-async function createGitHubRelease(newVersion) {
-  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases`;
+async function getLatestRelease() {
+  const url = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
 
-  const response = await axios.post(url, {
-    tag_name: `v${newVersion}`,
-    name: `v${newVersion}`,
-    body: `Release version ${newVersion}`,
-  }, {
-    headers: {
-      Authorization: `token ${GITHUB_TOKEN}`,
-      'Content-Type': 'application/json',
-    }
-  });
+  try {
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `token ${GITHUB_TOKEN}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch the latest release:', error.message);
+    throw error;
+  }
+}
 
-  const releaseId = response.data.id;
-  console.log(`Release created: ${response.data.html_url}`);
-
-  const uploadUrl = response.data.upload_url.replace('{?name,label}', '');
+async function uploadAssetsToLatestRelease() {
+  const latestRelease = await getLatestRelease();
+  const uploadUrl = latestRelease.upload_url.replace('{?name,label}', '');
 
   await uploadReleaseAsset(uploadUrl, 'module.json', moduleJsonPath);
   await uploadReleaseAsset(uploadUrl, 'module.zip', outputZipPath);
 
-  console.log('Assets uploaded to release.');
+  console.log('Assets uploaded to the latest release.');
 }
 
 async function uploadReleaseAsset(uploadUrl, assetName, assetPath) {
@@ -119,7 +120,7 @@ async function uploadReleaseAsset(uploadUrl, assetName, assetPath) {
     },
   });
 
-  console.log(`Uploaded ${assetName} to release.`);
+  console.log(`Uploaded ${assetName} to the latest release.`);
 }
 
 async function cleanup() {
@@ -138,7 +139,7 @@ async function runWorkflow() {
     const newVersion = await updateVersion();
     await zipModule();
     await gitOperations(newVersion);
-    await createGitHubRelease(newVersion);
+    await uploadAssetsToLatestRelease();
   } catch (error) {
     console.error('Workflow failed:', error);
   } finally {

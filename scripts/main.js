@@ -1,18 +1,21 @@
-Hooks.once('ready', async () => {
-  const mode = game.modules.get('giggioz-better-labels')?.mode || 'production';
-  // Fetch module version from module.json via game.modules
-  const moduleVersion = game.modules.get('giggioz-better-labels')?.version || 'unknown version';
+Hooks.once('ready', () => {
+  const mode = window.GiggiozBetterLabels.mode;
+  const version = game.modules.get('giggioz-better-labels')?.version || 'unknown';
 
-  if (mode === 'development') ui.notifications.info(`Giggioz Better Labels v${moduleVersion}: ${GiggiozBetterLabels.date()}`);
+  if (mode === 'development') {
+    ui.notifications.info(`Giggioz Better Labels v${version} running in ${mode} mode.`);
 
-  // Open the settings menu and navigate to the module's tab
-  game.settings.sheet.render(true);
-  Hooks.once('renderSettingsConfig', (app, html, data) => {
-    const tab = html.find('a[data-tab="giggioz-better-labels"]');
-    if (tab.length) {
-      tab[0].click();
-    }
-  });
+    // Open the settings menu and navigate to the module's tab
+    game.settings.sheet.render(true);
+    Hooks.once('renderSettingsConfig', (app, html, data) => {
+      const tab = html.find('a[data-tab="giggioz-better-labels"]');
+      if (tab.length) {
+        tab[0].click();
+      }
+    });
+  } else {
+    ui.notifications.info(`Giggioz Better Labels v${version} running in ${mode} mode.`);
+  }
 });
 
 Hooks.once('init', () => {

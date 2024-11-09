@@ -18,15 +18,15 @@ const moduleDir = path.resolve(__dirname, '../'); // Parent directory of publish
 const moduleJsonPath = path.join(moduleDir, 'module.json');
 const outputZipPath = path.join(moduleDir, `module.zip`);
 
+const globalJsPath = path.join(moduleDir, 'scripts', 'global.js');
+
 async function updateVersion() {
   const moduleJson = JSON.parse(fs.readFileSync(moduleJsonPath, 'utf-8'));
   const oldVersion = moduleJson.version;
-  const oldMode = moduleJson.mode || 'development'; // Default to development if not set
   const [major, minor, patch] = oldVersion.split('.').map(Number);
 
   const newVersion = `${major}.${minor}.${patch + 1}`;
   moduleJson.version = newVersion;
-  moduleJson.mode = 'production'; // Temporarily set mode to production
 
   // Update manifest and download URLs
   moduleJson.manifest = `https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/v${newVersion}/module.json`;
@@ -34,17 +34,25 @@ async function updateVersion() {
 
   fs.writeFileSync(moduleJsonPath, JSON.stringify(moduleJson, null, 2));
   console.log(`Updated module.json version: ${oldVersion} -> ${newVersion}`);
-  console.log(`Temporarily set mode to production`);
 
-  // Restore mode to development after a delay
+  // Temporarily set mode to production in global.js
+  let globalJs = fs.readFileSync(globalJsPath, 'utf-8');
+  globalJs = globalJs.replace(`mode: 'development'`, `mode: 'production'`);
+  fs.writeFileSync(globalJsPath, globalJs);
+  console.log('Temporarily set mode to production in global.js');
+
+  // Restore mode to development after process completion
   process.on('exit', () => {
-    moduleJson.mode = oldMode;
-    fs.writeFileSync(moduleJsonPath, JSON.stringify(moduleJson, null, 2));
-    console.log(`Restored mode to ${oldMode}`);
+    let globalJsRestore = fs.readFileSync(globalJsPath, 'utf-8');
+    globalJsRestore = globalJsRestore.replace(`mode: 'production'`, `mode: 'development'`);
+    fs.writeFileSync(globalJsPath, globalJsRestore);
+    console.log('Restored mode to development in global.js');
   });
 
   return newVersion;
 }
+
+
 
 
 function zipModule() {

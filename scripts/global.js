@@ -1,1 +1,3 @@
-window.GiggiozBetterLabels = {};
+window.GiggiozBetterLabels = {
+    mode: 'production'
+};

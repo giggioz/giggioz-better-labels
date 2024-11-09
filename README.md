@@ -31,10 +31,7 @@
 
 ## Development
 
-To modify or extend the module:
-
-1. Edit the `better-labels.js` file.
-2. Reload Foundry VTT to see your changes.
+To develop in local enviroment run ./create-symlink.sh to create a copy of this repo into  foundry modules. Chek the file to setup your path.
 
 ## Contributing
 

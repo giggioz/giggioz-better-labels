@@ -2,6 +2,8 @@ GiggiozBetterLabels.handleChatMessage = async function (chatMessage, options, us
   let visibility, backgroundColor;
   const textColor = game.settings.get('giggioz-better-labels', 'labelTextColor');
   const isGM = game.users.get(userId)?.isGM;
+  const currentUserIsGM = game.user.isGM;
+  const currentUserIsAuthor = game.user.id === chatMessage.user.id;
 
   if (chatMessage.blind) {
     visibility = 'Blind';
@@ -28,5 +30,7 @@ GiggiozBetterLabels.handleChatMessage = async function (chatMessage, options, us
   const label = `<p style="${style}">${visibility}</p>`;
   const newContent = label + chatMessage.content;
 
-  await chatMessage.update({ content: newContent });
+  if (currentUserIsGM || currentUserIsAuthor) {
+    await chatMessage.update({ content: newContent });
+  }
 }

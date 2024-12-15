@@ -2,7 +2,7 @@
   "title": "Giggioz Better Labels",
   "description": "FoundryVTT module that improves chat message labels.",
   "id": "giggioz-better-labels",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "authors": [
     {
       "name": "Giggioz",
@@ -24,8 +24,8 @@
   "packs": [],
   "languages": [],
   "url": "https://github.com/giggioz/giggioz-better-labels",
-  "manifest": "https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.30/module.json",
-  "download": "https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.30/module.zip",
+  "manifest": "https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.31/module.json",
+  "download": "https://github.com/giggioz/giggioz-better-labels/releases/download/v1.0.31/module.zip",
   "compatibility": {
     "verified": "12",
     "minimum": "12"
